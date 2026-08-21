@@ -1,7 +1,7 @@
 /**
  * 构建前抓取 GitHub 公开数据，落盘为 src/data/github.json。
  *
- * 有 GITHUB_TOKEN 时走 GraphQL，可拿到官方贡献日历和按字节数统计的语言占比；
+ * 有 GITHUB_TOKEN 时走 GraphQL 拿官方贡献日历；
  * 没有 token 时退回公开 REST + 第三方贡献 API，本地开发无需任何配置。
  * 任何一步失败都会保留上一次的结果，避免把构建搞挂。
  *
@@ -19,18 +19,6 @@ const AVATAR_FILE = resolve(ROOT, 'public/avatar.png');
 const USER = process.env.GITHUB_USER ?? '0xKaeruIO';
 const TOKEN = process.env.GITHUB_TOKEN ?? process.env.GH_TOKEN ?? '';
 const TOP_REPO_COUNT = 6;
-
-/** 语言配色沿用站点自己的复古色板，避免 GitHub 原生荧光色破坏整体调性。 */
-const LANG_PALETTE = [
-  '#dc3b2c', // vermilion
-  '#1f2a48', // ink
-  '#2fb0aa', // teal
-  '#e8b04c', // honey
-  '#8c5a3c', // terracotta
-  '#5c6f9c', // dusty blue
-  '#a8763e', // ochre
-  '#6f8f4e', // olive
-];
 
 const BASE_HEADERS = {
   Accept: 'application/vnd.github+json',
@@ -204,7 +192,7 @@ function buildCalendar({ days, total, source }) {
 }
 
 /* -------------------------------------------------------------------------- */
-/* 仓库与语言                                                                  */
+/* 仓库                                                                        */
 /* -------------------------------------------------------------------------- */
 
 async function fetchRepos() {
@@ -217,60 +205,6 @@ async function fetchRepos() {
     if (batch.length < 100) break;
   }
   return all.filter((r) => !r.private);
-}
-
-/**
- * 有 token 时逐仓库读 /languages，按代码字节数精确统计。
- * 匿名时按「主语言的仓库数」计票——repo.size 是含资源文件的仓库总体积，
- * 用它加权会让某个塞了大文件的仓库吃掉整张图。
- */
-async function aggregateLanguages(repos) {
-  const own = repos.filter((r) => !r.fork && !r.archived);
-  const weights = new Map();
-
-  if (TOKEN) {
-    const results = await Promise.allSettled(
-      own.map((r) => getJSON(r.languages_url)),
-    );
-    for (const result of results) {
-      if (result.status !== 'fulfilled') continue;
-      for (const [lang, size] of Object.entries(result.value)) {
-        weights.set(lang, (weights.get(lang) ?? 0) + size);
-      }
-    }
-  }
-
-  if (weights.size === 0) {
-    for (const repo of own) {
-      if (!repo.language) continue;
-      weights.set(repo.language, (weights.get(repo.language) ?? 0) + 1);
-    }
-  }
-
-  const total = [...weights.values()].reduce((s, v) => s + v, 0);
-  if (total === 0) return [];
-
-  const ranked = [...weights.entries()].sort((a, b) => b[1] - a[1]);
-  const top = ranked.slice(0, 7);
-  const restWeight = ranked.slice(7).reduce((s, [, v]) => s + v, 0);
-
-  const list = top.map(([name, value], i) => ({
-    name,
-    weight: value,
-    percent: Number(((value / total) * 100).toFixed(1)),
-    color: LANG_PALETTE[i % LANG_PALETTE.length],
-  }));
-
-  if (restWeight > 0) {
-    list.push({
-      name: 'Other',
-      weight: restWeight,
-      percent: Number(((restWeight / total) * 100).toFixed(1)),
-      color: '#a89c88',
-    });
-  }
-
-  return list;
 }
 
 function pickTopRepos(repos) {
@@ -319,10 +253,7 @@ async function main() {
     fetchContributions(),
   ]);
 
-  const [languages, avatarLocal] = await Promise.all([
-    aggregateLanguages(repos),
-    downloadAvatar(user.avatar_url),
-  ]);
+  const avatarLocal = await downloadAvatar(user.avatar_url);
 
   const payload = {
     generatedAt: new Date().toISOString(),
@@ -344,7 +275,6 @@ async function main() {
       forks: repos.reduce((s, r) => s + r.forks_count, 0),
       repos: repos.filter((r) => !r.fork).length,
     },
-    languages,
     contributions: buildCalendar(rawContrib),
     repos: pickTopRepos(repos),
   };
@@ -353,8 +283,7 @@ async function main() {
   await writeFile(OUT_FILE, `${JSON.stringify(payload, null, 2)}\n`);
 
   console.log(
-    `  ✓ ${payload.totals.repos} 个仓库 / ${languages.length} 种语言 / ` +
-      `${payload.contributions.total} 次贡献 (${payload.contributions.source})`,
+    `  ✓ ${payload.totals.repos} 个仓库 / ${payload.contributions.total} 次贡献 (${payload.contributions.source})`,
   );
 }
 
@@ -382,7 +311,6 @@ main().catch(async (err) => {
         createdAt: new Date().toISOString(),
       },
       totals: { stars: 0, forks: 0, repos: 0 },
-      languages: [],
       contributions: { total: 0, weeks: [], max: 0, streak: { current: 0, longest: 0 } },
       repos: [],
     };

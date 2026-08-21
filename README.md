@@ -63,23 +63,24 @@ git add . && git commit -m "post: 文章标题" && git push
 
 - 头像、简介、粉丝数、仓库总数、star 总数
 - 贡献热力图（过去一年）
-- 语言占比
 - 置顶仓库列表（按 star 与最近推送排序）
 
-脚本只读取公开数据，统计范围是公开且非 fork、非归档的仓库。
+语言列表是手动维护的，改 `src/consts.ts` 里的 `LANGUAGES` 即可，不走 GitHub 统计。
+
+脚本只读取公开数据。
 
 数据来源分两档：
 
-| 情况 | 贡献日历 | 语言占比 |
-| --- | --- | --- |
-| 有 `GITHUB_TOKEN` | GitHub GraphQL（官方数据） | 逐仓库按代码字节数统计 |
-| 匿名（本地开发） | 公开第三方 API | 按主语言的仓库数计票 |
+| 情况 | 贡献日历 |
+| --- | --- |
+| 有 `GITHUB_TOKEN` | GitHub GraphQL（官方数据） |
+| 匿名（本地开发） | 公开第三方 API |
 
 抓取失败时会沿用上一次的 `github.json`，不会让构建挂掉。
 
 CI 里用的是 Actions 内置的 `secrets.GITHUB_TOKEN`，不需要你手动配任何凭据。
 
-想在本地拿到和线上一致的精确语言统计，用环境变量临时传入，别写进文件：
+想在本地用官方贡献日历，用环境变量临时传入，别写进文件：
 
 ```bash
 GITHUB_TOKEN=github_pat_xxx pnpm sync

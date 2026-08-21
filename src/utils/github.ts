@@ -14,14 +14,6 @@ export interface GitHubUser {
   createdAt: string;
 }
 
-export interface LanguageStat {
-  name: string;
-  /** 已认证时是代码字节数，匿名时是以该语言为主语言的仓库数 */
-  weight: number;
-  percent: number;
-  color: string;
-}
-
 export interface ContributionDay {
   date: string;
   count: number;
@@ -57,7 +49,6 @@ export interface GitHubData {
   offline?: boolean;
   user: GitHubUser;
   totals: { stars: number; forks: number; repos: number };
-  languages: LanguageStat[];
   contributions: Contributions;
   repos: RepoSummary[];
 }

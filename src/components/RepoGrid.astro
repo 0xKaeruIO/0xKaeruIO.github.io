@@ -2,11 +2,23 @@
 import { github } from '@/utils/github';
 import { formatRelative } from '@/utils/format';
 
-const { repos, languages } = github;
+const { repos } = github;
 
-/** 语言色沿用语言图表里的分配，缺省则用砂色，保证两处视觉一致。 */
+const LANG_DOT: Record<string, string> = {
+  Python: '#dc3b2c',
+  JavaScript: '#e8b04c',
+  TypeScript: '#1f2a48',
+  Go: '#2fb0aa',
+  Rust: '#8c5a3c',
+  HTML: '#a8763e',
+  CSS: '#5c6f9c',
+  Ruby: '#b92c20',
+  Lua: '#6f8f4e',
+  Shell: '#3b4667',
+};
+
 const colorOf = (lang: string | null) =>
-  languages.find((l) => l.name === lang)?.color ?? 'var(--text-faint)';
+  (lang && LANG_DOT[lang]) || 'var(--text-faint)';
 ---
 
 <section class="repos" aria-labelledby="repos-title">

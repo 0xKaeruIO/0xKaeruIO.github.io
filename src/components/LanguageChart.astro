@@ -1,120 +1,131 @@
 ---
-import { github } from '@/utils/github';
+import { LANGUAGES } from '@/consts';
 
-const { languages } = github;
-const hasData = languages.length > 0;
+type Lang = (typeof LANGUAGES)[number];
+
+const rotate = (items: readonly Lang[], offset: number) =>
+  items.slice(offset).concat(items.slice(0, offset));
+
+/** 三行错开起点和速度，看起来是铺满一整块，而不是同一列在齐步走。 */
+const rows = [
+  { items: rotate(LANGUAGES, 0), duration: '42s', delay: '0s' },
+  { items: rotate(LANGUAGES, 3), duration: '56s', delay: '-18s' },
+  { items: rotate(LANGUAGES, 6), duration: '48s', delay: '-8s' },
+];
 ---
 
 <section class="langs card" aria-labelledby="langs-title">
-  <p class="eyebrow" id="langs-title">Languages</p>
+  <p class="eyebrow" id="langs-title">MEMORY</p>
 
-  {
-    hasData ? (
-      <>
-        <div
-          class="bar"
-          role="img"
-          aria-label={languages.map((l) => `${l.name} ${l.percent}%`).join('，')}
-        >
-          {
-            languages.map((l) => (
-              <span
-                class="bar__seg"
-                style={`width:${l.percent}%;background:${l.color}`}
-                title={`${l.name} · ${l.percent}%`}
-              />
-            ))
-          }
+
+  <div class="marquee" aria-hidden="true">
+    {
+      rows.map((row) => (
+        <div class="track">
+          <div class="strip" style={`--dur:${row.duration};--delay:${row.delay}`}>
+            {[0, 1].map(() =>
+              row.items.map((lang) => (
+                <span class="chip">
+                  <span class="chip__name">{lang.name}</span>
+                  <span class="chip__code">{lang.snippet}</span>
+                </span>
+              )),
+            )}
+          </div>
         </div>
-
-        <ul class="list">
-          {
-            languages.map((l) => (
-              <li class="item">
-                <span class="dot" style={`background:${l.color}`} aria-hidden="true" />
-                <span class="item__name">{l.name}</span>
-                <span class="item__pct">{l.percent}%</span>
-              </li>
-            ))
-          }
-        </ul>
-      </>
-    ) : (
-      <p class="meta empty">暂时没有语言统计数据。</p>
-    )
-  }
+      ))
+    }
+  </div>
 </section>
 
 <style>
   .langs {
-    padding: 1.4rem 1.5rem 1.35rem;
+    padding: 1.4rem 0 1.25rem;
+    overflow: hidden;
   }
 
-  /* 堆叠条 */
-  .bar {
+  .langs :global(.eyebrow) {
+    padding-inline: 1.5rem;
+  }
+
+  .marquee {
     display: flex;
-    height: 0.6rem;
+    flex-direction: column;
+    gap: 0.55rem;
     margin-top: 1.15rem;
-    border-radius: 100px;
+    mask-image: linear-gradient(
+      90deg,
+      transparent,
+      #000 1.5rem,
+      #000 calc(100% - 1.5rem),
+      transparent
+    );
+  }
+
+  .track {
     overflow: hidden;
-    background: var(--bg-sunken);
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 10%, transparent);
   }
 
-  .bar__seg {
-    height: 100%;
-    transition: filter var(--transition), transform var(--transition);
-  }
-
-  .bar:hover .bar__seg {
-    filter: saturate(0.55) opacity(0.55);
-  }
-
-  .bar__seg:hover {
-    filter: none;
-  }
-
-  /* 图例 */
-  .list {
+  /* 内容复制两份，动画位移 50% 时无缝接上 */
+  .strip {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem 1.6rem;
-    margin: 1.15rem 0 0;
-    padding: 0;
-    list-style: none;
+    width: max-content;
+    gap: 0.55rem;
+    padding-inline: 0.55rem;
+    animation: marquee var(--dur) linear var(--delay) infinite;
   }
 
-  .item {
-    display: flex;
+  .track:hover .strip {
+    animation-play-state: paused;
+  }
+
+  .chip {
+    display: inline-flex;
     align-items: baseline;
-    gap: 0.45rem;
-    font-size: 0.86rem;
-    min-width: 0;
-  }
-
-  .dot {
+    gap: 0.7rem;
     flex-shrink: 0;
-    width: 0.55rem;
-    height: 0.55rem;
+    padding: 0.4rem 1rem;
+    border: 1px solid var(--border);
     border-radius: 100px;
-    transform: translateY(-0.05rem);
-  }
-
-  .item__name {
-    color: var(--fg);
-    overflow: hidden;
-    text-overflow: ellipsis;
+    background: var(--bg-elevated);
     white-space: nowrap;
+    box-shadow: 2px 2px 0 0 color-mix(in srgb, var(--shadow-hard) 7%, transparent);
   }
 
-  .item__pct {
+  .chip__name {
+    font-size: 0.88rem;
+    font-weight: 650;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+
+  .chip__code {
     font-family: var(--font-mono);
-    font-size: 0.74rem;
-    color: var(--fg-faint);
-    font-variant-numeric: tabular-nums;
+    font-size: 0.72rem;
+    color: var(--vermilion-deep);
+    opacity: 0.88;
   }
 
-  .empty {
-    margin-top: 1rem;
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .strip {
+      animation: none;
+      flex-wrap: wrap;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .marquee {
+      mask-image: none;
+      padding-inline: 1.15rem;
+    }
   }
 </style>
