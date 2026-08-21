@@ -1,0 +1,274 @@
+---
+import type { MarkdownHeading } from 'astro';
+import BaseLayout from './BaseLayout.astro';
+import TableOfContents from '@/components/TableOfContents.astro';
+import PostCard from '@/components/PostCard.astro';
+import type { Post } from '@/utils/posts';
+import { CATEGORY_LABELS, SITE } from '@/consts';
+import { formatDate, readingTime } from '@/utils/format';
+import { withBase } from '@/utils/url';
+
+interface Props {
+  post: Post;
+  headings: MarkdownHeading[];
+  newer?: Post;
+  older?: Post;
+  related: Post[];
+}
+
+const { post, headings, newer, older, related } = Astro.props;
+const { title, description, pubDate, updatedDate, tags, category } = post.data;
+const minutes = readingTime(post.body);
+const categoryHref = category === 'life' ? '/life' : '/posts';
+const editUrl = `https://github.com/${SITE.githubUser}/${SITE.repo}/edit/main/src/content/posts/${post.id}.md`;
+---
+
+<BaseLayout title={title} description={description}>
+  <Fragment slot="head">
+    <meta property="og:type" content="article" />
+    <meta property="article:published_time" content={pubDate.toISOString()} />
+    {tags.map((t) => <meta property="article:tag" content={t} />)}
+  </Fragment>
+
+  <article class="wrap article">
+    <header class="head">
+      <nav class="crumbs meta" aria-label="面包屑">
+        <a href={withBase('/')}>首页</a>
+        <span aria-hidden="true">/</span>
+        <a href={withBase(categoryHref)}>{CATEGORY_LABELS[category] ?? category}</a>
+      </nav>
+
+      <h1 class="head__title">{title}</h1>
+      <p class="head__desc">{description}</p>
+
+      <div class="head__meta">
+        <time datetime={pubDate.toISOString()}>{formatDate(pubDate)}</time>
+        <span class="dot" aria-hidden="true">·</span>
+        <span>{minutes} 分钟阅读</span>
+        {
+          updatedDate && (
+            <>
+              <span class="dot" aria-hidden="true">·</span>
+              <span>更新于 {formatDate(updatedDate)}</span>
+            </>
+          )
+        }
+      </div>
+
+      {
+        tags.length > 0 && (
+          <div class="head__tags">
+            {tags.map((t) => (
+              <a class="tag" href={withBase(`/tags/${encodeURIComponent(t)}`)}>
+                {t}
+              </a>
+            ))}
+          </div>
+        )
+      }
+    </header>
+
+    <div class="body">
+      <div class="prose">
+        <slot />
+      </div>
+
+      <aside class="rail">
+        <TableOfContents headings={headings} />
+      </aside>
+    </div>
+
+    <footer class="foot">
+      <a class="edit meta" href={editUrl} target="_blank" rel="noopener">
+        在 GitHub 上编辑这篇文章 →
+      </a>
+
+      {
+        (newer || older) && (
+          <nav class="adjacent" aria-label="上下篇导航">
+            {older ? (
+              <a class="adjacent__link card card--lift" href={withBase(`/posts/${older.id}`)}>
+                <span class="adjacent__label meta">← 上一篇</span>
+                <span class="adjacent__title">{older.data.title}</span>
+              </a>
+            ) : (
+              <span />
+            )}
+            {newer && (
+              <a
+                class="adjacent__link adjacent__link--next card card--lift"
+                href={withBase(`/posts/${newer.id}`)}
+              >
+                <span class="adjacent__label meta">下一篇 →</span>
+                <span class="adjacent__title">{newer.data.title}</span>
+              </a>
+            )}
+          </nav>
+        )
+      }
+
+      {
+        related.length > 0 && (
+          <section class="related">
+            <p class="eyebrow">Related</p>
+            <div class="related__list">
+              {related.map((p) => (
+                <PostCard post={p} />
+              ))}
+            </div>
+          </section>
+        )
+      }
+    </footer>
+  </article>
+</BaseLayout>
+
+<style>
+  .article {
+    padding-top: clamp(2rem, 5vw, 3.5rem);
+  }
+
+  /* ---------------- 文章头 ---------------- */
+  .head {
+    max-width: var(--measure);
+    padding-bottom: 1.75rem;
+    margin-bottom: 2.5rem;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .crumbs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.1rem;
+  }
+
+  .crumbs a {
+    text-decoration: none;
+  }
+
+  .crumbs a:hover {
+    color: var(--accent);
+  }
+
+  .head__title {
+    font-size: var(--step-3);
+    line-height: 1.16;
+  }
+
+  .head__desc {
+    margin-top: 0.9rem;
+    font-size: var(--step-1);
+    line-height: 1.7;
+    color: var(--fg-muted);
+  }
+
+  .head__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.3rem;
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--fg-faint);
+  }
+
+  .head__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 1.1rem;
+  }
+
+  /* ---------------- 正文 + 侧栏 ---------------- */
+  .body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 14rem;
+    gap: clamp(2rem, 5vw, 4rem);
+  }
+
+  /* 不要收缩到内容高度，否则里面的 sticky 目录会在滚过侧栏后失效 */
+  .rail {
+    position: relative;
+    align-self: stretch;
+  }
+
+  /* ---------------- 文章尾 ---------------- */
+  .foot {
+    max-width: var(--measure);
+    margin-top: 4rem;
+  }
+
+  .edit {
+    display: inline-block;
+    padding-top: 1.5rem;
+    border-top: 1px dashed var(--border);
+    width: 100%;
+    text-decoration: none;
+  }
+
+  .edit:hover {
+    color: var(--accent);
+  }
+
+  .adjacent {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.9rem;
+    margin-top: 2rem;
+  }
+
+  .adjacent__link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    padding: 1rem 1.15rem;
+    text-decoration: none;
+  }
+
+  .adjacent__link--next {
+    text-align: right;
+  }
+
+  .adjacent__title {
+    font-family: var(--font-serif);
+    font-size: 0.98rem;
+    line-height: 1.4;
+    color: var(--ink);
+    transition: color var(--transition);
+  }
+
+  .adjacent__link:hover .adjacent__title {
+    color: var(--accent);
+  }
+
+  .related {
+    margin-top: 3.5rem;
+  }
+
+  .related__list {
+    display: grid;
+    gap: 0.9rem;
+    margin-top: 1.25rem;
+  }
+
+  @media (max-width: 1080px) {
+    .body {
+      grid-template-columns: 1fr;
+    }
+
+    .rail {
+      display: none;
+    }
+  }
+
+  @media (max-width: 620px) {
+    .adjacent {
+      grid-template-columns: 1fr;
+    }
+
+    .adjacent__link--next {
+      text-align: left;
+    }
+  }
+</style>

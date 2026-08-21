@@ -1,0 +1,60 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHeader from '@/components/PageHeader.astro';
+import PostCard from '@/components/PostCard.astro';
+import { getPostsByCategory } from '@/utils/posts';
+import { withBase } from '@/utils/url';
+
+const posts = await getPostsByCategory('life');
+---
+
+<BaseLayout title="生活" description="和代码无关的日常碎片：生活、游戏、人生。">
+  <PageHeader
+    eyebrow="Life"
+    title="生活碎片"
+    description="不谈技术的那一部分。生活、游戏，以及偶尔的胡思乱想。"
+    count={posts.length}
+  />
+
+  <div class="wrap list">
+    {
+      posts.length > 0 ? (
+        posts.map((post) => <PostCard post={post} />)
+      ) : (
+        <div class="empty card">
+          <p class="empty__title">还没有写生活相关的内容</p>
+          <p class="empty__hint meta">
+            在 src/content/posts/ 里新建一篇 category 为 life 的 Markdown 就会出现在这里。
+          </p>
+          <a class="btn btn--ghost" href={withBase('/posts')}>去看技术文章</a>
+        </div>
+      )
+    }
+  </div>
+</BaseLayout>
+
+<style>
+  .list {
+    display: grid;
+    gap: 0.9rem;
+    padding-top: clamp(2rem, 4vw, 3rem);
+  }
+
+  .empty {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.6rem;
+    padding: 2.25rem;
+  }
+
+  .empty__title {
+    font-family: var(--font-serif);
+    font-size: var(--step-1);
+    color: var(--ink);
+  }
+
+  .empty .btn {
+    margin-top: 0.8rem;
+  }
+</style>

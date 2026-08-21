@@ -1,0 +1,120 @@
+---
+import { github } from '@/utils/github';
+
+const { languages } = github;
+const hasData = languages.length > 0;
+---
+
+<section class="langs card" aria-labelledby="langs-title">
+  <p class="eyebrow" id="langs-title">Languages</p>
+
+  {
+    hasData ? (
+      <>
+        <div
+          class="bar"
+          role="img"
+          aria-label={languages.map((l) => `${l.name} ${l.percent}%`).join('，')}
+        >
+          {
+            languages.map((l) => (
+              <span
+                class="bar__seg"
+                style={`width:${l.percent}%;background:${l.color}`}
+                title={`${l.name} · ${l.percent}%`}
+              />
+            ))
+          }
+        </div>
+
+        <ul class="list">
+          {
+            languages.map((l) => (
+              <li class="item">
+                <span class="dot" style={`background:${l.color}`} aria-hidden="true" />
+                <span class="item__name">{l.name}</span>
+                <span class="item__pct">{l.percent}%</span>
+              </li>
+            ))
+          }
+        </ul>
+      </>
+    ) : (
+      <p class="meta empty">暂时没有语言统计数据。</p>
+    )
+  }
+</section>
+
+<style>
+  .langs {
+    padding: 1.4rem 1.5rem 1.35rem;
+  }
+
+  /* 堆叠条 */
+  .bar {
+    display: flex;
+    height: 0.6rem;
+    margin-top: 1.15rem;
+    border-radius: 100px;
+    overflow: hidden;
+    background: var(--bg-sunken);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 10%, transparent);
+  }
+
+  .bar__seg {
+    height: 100%;
+    transition: filter var(--transition), transform var(--transition);
+  }
+
+  .bar:hover .bar__seg {
+    filter: saturate(0.55) opacity(0.55);
+  }
+
+  .bar__seg:hover {
+    filter: none;
+  }
+
+  /* 图例 */
+  .list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.6rem;
+    margin: 1.15rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .item {
+    display: flex;
+    align-items: baseline;
+    gap: 0.45rem;
+    font-size: 0.86rem;
+    min-width: 0;
+  }
+
+  .dot {
+    flex-shrink: 0;
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 100px;
+    transform: translateY(-0.05rem);
+  }
+
+  .item__name {
+    color: var(--fg);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .item__pct {
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    color: var(--fg-faint);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .empty {
+    margin-top: 1rem;
+  }
+</style>

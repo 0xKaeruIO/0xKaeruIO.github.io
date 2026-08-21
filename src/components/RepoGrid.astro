@@ -1,0 +1,174 @@
+---
+import { github } from '@/utils/github';
+import { formatRelative } from '@/utils/format';
+
+const { repos, languages } = github;
+
+/** 语言色沿用语言图表里的分配，缺省则用砂色，保证两处视觉一致。 */
+const colorOf = (lang: string | null) =>
+  languages.find((l) => l.name === lang)?.color ?? 'var(--text-faint)';
+---
+
+<section class="repos" aria-labelledby="repos-title">
+  <p class="eyebrow" id="repos-title">Repositories</p>
+
+  <ul class="grid">
+    {
+      repos.map((repo) => (
+        <li>
+          <a class="repo card card--lift" href={repo.url} target="_blank" rel="noopener">
+            <div class="repo__head">
+              <h3 class="repo__name">{repo.name}</h3>
+              {repo.archived && <span class="badge">已归档</span>}
+            </div>
+
+            <p class="repo__desc">{repo.description ?? '暂无描述'}</p>
+
+            {
+              repo.topics.length > 0 && (
+                <div class="repo__topics">
+                  {repo.topics.map((t) => (
+                    <span class="tag">{t}</span>
+                  ))}
+                </div>
+              )
+            }
+
+            <div class="repo__foot">
+              {
+                repo.language && (
+                  <span class="chip">
+                    <span
+                      class="dot"
+                      style={`background:${colorOf(repo.language)}`}
+                      aria-hidden="true"
+                    />
+                    {repo.language}
+                  </span>
+                )
+              }
+              {
+                repo.stars > 0 && (
+                  <span class="chip">
+                    <svg viewBox="0 0 16 16" aria-hidden="true">
+                      <path
+                        fill="currentColor"
+                        d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"
+                      />
+                    </svg>
+                    {repo.stars}
+                  </span>
+                )
+              }
+              <span class="chip chip--time">{formatRelative(repo.pushedAt)}</span>
+            </div>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</section>
+
+<style>
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(15.5rem, 1fr));
+    gap: 0.9rem;
+    margin: 1.15rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .repo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    height: 100%;
+    padding: 1.05rem 1.15rem;
+    text-decoration: none;
+  }
+
+  .repo__head {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .repo__name {
+    font-family: var(--font-mono);
+    font-size: 0.92rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: color var(--transition);
+  }
+
+  .repo:hover .repo__name {
+    color: var(--vermilion);
+  }
+
+  .badge {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    padding: 0.05em 0.45em;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    color: var(--fg-faint);
+    white-space: nowrap;
+  }
+
+  .repo__desc {
+    flex: 1;
+    font-size: 0.83rem;
+    line-height: 1.65;
+    color: var(--fg-muted);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .repo__topics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    overflow: hidden;
+    max-height: 1.35rem;
+  }
+
+  .repo__foot {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding-top: 0.6rem;
+    border-top: 1px dashed var(--border);
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--fg-faint);
+  }
+
+  .chip svg {
+    width: 0.72rem;
+    height: 0.72rem;
+  }
+
+  .chip--time {
+    margin-left: auto;
+  }
+
+  .dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 100px;
+  }
+</style>

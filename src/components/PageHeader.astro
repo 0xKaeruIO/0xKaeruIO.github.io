@@ -1,0 +1,61 @@
+---
+interface Props {
+  eyebrow: string;
+  title: string;
+  description?: string;
+  count?: number;
+  unit?: string;
+}
+
+const { eyebrow, title, description, count, unit = '篇' } = Astro.props;
+---
+
+<header class="page-head">
+  <div class="wrap">
+    <p class="eyebrow">{eyebrow}</p>
+    <div class="row">
+      <h1 class="title misprint">{title}</h1>
+      {count !== undefined && <span class="count meta">{count} {unit}</span>}
+    </div>
+    {description && <p class="desc">{description}</p>}
+    <slot />
+  </div>
+</header>
+
+<style>
+  .page-head {
+    padding-block: clamp(2.5rem, 6vw, 4rem) clamp(1.75rem, 3vw, 2.5rem);
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(
+      170deg,
+      color-mix(in srgb, var(--honey) 7%, transparent),
+      transparent 70%
+    );
+  }
+
+  .row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.9rem;
+    margin-top: 1rem;
+  }
+
+  .title {
+    font-size: var(--step-3);
+    line-height: 1.12;
+  }
+
+  .count {
+    flex-shrink: 0;
+    padding-bottom: 0.2rem;
+    white-space: nowrap;
+  }
+
+  .desc {
+    max-width: 52ch;
+    margin-top: 0.85rem;
+    font-size: var(--step-0);
+    line-height: 1.75;
+    color: var(--fg-muted);
+  }
+</style>

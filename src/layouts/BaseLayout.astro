@@ -1,0 +1,95 @@
+---
+import '@/styles/global.css';
+import Header from '@/components/Header.astro';
+import Footer from '@/components/Footer.astro';
+import { SITE } from '@/consts';
+import { withBase } from '@/utils/url';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** 覆盖 <title>，用于首页这类不想带后缀的页面 */
+  bareTitle?: boolean;
+}
+
+const { title, description = SITE.description, bareTitle = false } = Astro.props;
+
+const pageTitle = !title
+  ? `${SITE.title} — ${SITE.tagline}`
+  : bareTitle
+    ? title
+    : `${title} · ${SITE.title}`;
+
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+---
+
+<!doctype html>
+<html lang={SITE.lang} data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <meta name="author" content={SITE.author} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href={withBase('/favicon.png')} type="image/png" />
+    <link rel="apple-touch-icon" href={withBase('/favicon.png')} />
+    <link rel="alternate" type="application/rss+xml" title={SITE.title} href={withBase('/rss.xml')} />
+    <meta name="generator" content={Astro.generator} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE.title} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={SITE.locale} />
+    <meta property="og:image" content={new URL(withBase('/avatar.png'), Astro.site).href} />
+    <meta name="twitter:card" content="summary" />
+
+    <meta name="theme-color" content="#faf3e2" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#15161d" media="(prefers-color-scheme: dark)" />
+
+    <!-- 在首屏渲染前确定主题，避免深色模式下的白屏闪烁 -->
+    <script is:inline>
+      (() => {
+        const saved = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.dataset.theme = saved ?? (prefersDark ? 'dark' : 'light');
+      })();
+    </script>
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">跳到正文</a>
+    <Header />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<style>
+  .skip-link {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -110%);
+    z-index: 100;
+    padding: 0.6rem 1.1rem;
+    background: var(--ink);
+    color: var(--cream);
+    border-radius: 0 0 var(--radius) var(--radius);
+    font-size: var(--step--1);
+    text-decoration: none;
+    transition: transform var(--transition);
+  }
+
+  .skip-link:focus-visible {
+    transform: translate(-50%, 0);
+  }
+
+  main {
+    flex: 1;
+  }
+</style>

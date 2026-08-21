@@ -1,0 +1,49 @@
+---
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHeader from '@/components/PageHeader.astro';
+import PostCard from '@/components/PostCard.astro';
+import { getAllTags, getPublishedPosts } from '@/utils/posts';
+import { withBase } from '@/utils/url';
+
+export const getStaticPaths = (async () => {
+  const [tags, posts] = await Promise.all([getAllTags(), getPublishedPosts()]);
+  return tags.map(({ tag }) => ({
+    params: { tag },
+    props: { tag, posts: posts.filter((p) => p.data.tags.includes(tag)) },
+  }));
+}) satisfies GetStaticPaths;
+
+const { tag, posts } = Astro.props;
+---
+
+<BaseLayout title={`标签：${tag}`} description={`所有关于「${tag}」的文章。`}>
+  <PageHeader eyebrow="Tag" title={tag} count={posts.length}>
+    <a class="back" href={withBase('/tags')}>← 全部标签</a>
+  </PageHeader>
+
+  <div class="wrap list">
+    {posts.map((post) => <PostCard post={post} />)}
+  </div>
+</BaseLayout>
+
+<style>
+  .back {
+    display: inline-block;
+    margin-top: 1.25rem;
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--fg-muted);
+    text-decoration: none;
+  }
+
+  .back:hover {
+    color: var(--accent);
+  }
+
+  .list {
+    display: grid;
+    gap: 0.9rem;
+    padding-top: clamp(2rem, 4vw, 3rem);
+  }
+</style>

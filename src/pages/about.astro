@@ -1,0 +1,225 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHeader from '@/components/PageHeader.astro';
+import GitHubProfile from '@/components/GitHubProfile.astro';
+import Heatmap from '@/components/Heatmap.astro';
+import LanguageChart from '@/components/LanguageChart.astro';
+import RepoGrid from '@/components/RepoGrid.astro';
+import { SITE } from '@/consts';
+import { github } from '@/utils/github';
+import { withBase } from '@/utils/url';
+
+const { user } = github;
+
+const focus = [
+  {
+    title: '集群与调度',
+    body: 'Slurm 的部署、调优与排障。让一堆机器变成一台可以排队使用的机器。',
+  },
+  {
+    title: '系统与自动化',
+    body: 'Linux、cgroup、容器，以及把重复的运维动作变成脚本的执念。',
+  },
+  {
+    title: '写点小工具',
+    body: 'Python 和 Rust 为主，大多是为了解决自己遇到的某个具体麻烦。',
+  },
+];
+---
+
+<BaseLayout title="关于" description={`关于 ${SITE.author}：一个折腾计算机、偶尔写点小工具、热爱游戏的人。`}>
+  <PageHeader eyebrow="About" title="关于我" description={SITE.tagline} />
+
+  <div class="wrap about">
+    <section class="intro">
+      <div class="intro__text stack">
+        <p class="lead">
+          你好，我是 <strong>{user.name}</strong>。日常工作是维护高性能计算集群，
+          和 Slurm、cgroup、以及各种莫名其妙的节点状态打交道。
+        </p>
+        <p>
+          这个站点是我的笔记本。写下来的主要原因很实际：同一个坑我踩过，
+          就有记录下来的价值与意义。所以这里的文章大多带着具体的配置、命令和报错信息，
+          写给三个月后忘记细节的自己，如果顺便帮到了别人那更好。
+        </p>
+        <p>
+          除了技术，也会写一点生活。毕竟 GitHub 简介里的条件语句是
+          <code>Code() && Game()</code>，两个条件都得满足。
+        </p>
+        <p>
+          人生的目标则是
+          <code>Happy()</code>为此努力,因此而行
+        </p>
+      </div>
+
+      <div class="intro__card">
+        <GitHubProfile />
+      </div>
+    </section>
+
+    <section class="focus">
+      <p class="eyebrow">What I Work On</p>
+      <div class="focus__grid">
+        {
+          focus.map((f, i) => (
+            <article class="focus__item card">
+              <span class="focus__num">{String(i + 1).padStart(2, '0')}</span>
+              <h2 class="focus__title">{f.title}</h2>
+              <p class="focus__body">{f.body}</p>
+            </article>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="stats">
+      <p class="eyebrow">GitHub</p>
+      <div class="stats__grid">
+        <Heatmap />
+        <LanguageChart />
+        <RepoGrid />
+      </div>
+    </section>
+
+    <section class="contact card">
+      <div>
+        <p class="eyebrow">Get in Touch</p>
+        <h2 class="contact__title">聊聊集群，或者别的什么</h2>
+        <p class="contact__body">
+          技术问题、文章里的错误、或者只是想打个招呼，都欢迎在 GitHub 上找我。
+        </p>
+      </div>
+      <div class="contact__actions">
+        <a class="btn" href={user.htmlUrl} target="_blank" rel="noopener">GitHub</a>
+        <a class="btn btn--ghost" href={withBase('/rss.xml')}>订阅 RSS</a>
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .about {
+    padding-top: clamp(2.25rem, 5vw, 3.5rem);
+  }
+
+  .about > section + section {
+    margin-top: clamp(3rem, 6vw, 4.5rem);
+  }
+
+  /* ---------------- 自我介绍 ---------------- */
+  .intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    align-items: start;
+    gap: clamp(2rem, 5vw, 3.5rem);
+  }
+
+  .intro__text {
+    --stack-space: 1.15rem;
+    font-size: var(--step-0);
+    line-height: 1.85;
+    color: var(--fg-muted);
+    max-width: 46ch;
+  }
+
+  .lead {
+    font-family: var(--font-serif);
+    font-size: var(--step-1);
+    line-height: 1.6;
+    color: var(--ink);
+  }
+
+  .intro__text strong {
+    color: var(--vermilion);
+  }
+
+  .intro__text code {
+    padding: 0.1em 0.4em;
+    border-radius: var(--radius);
+    background: color-mix(in srgb, var(--teal) 12%, transparent);
+    color: color-mix(in srgb, var(--teal) 85%, var(--fg));
+    font-size: 0.85em;
+  }
+
+  /* ---------------- 关注方向 ---------------- */
+  .focus__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: 0.9rem;
+    margin-top: 1.35rem;
+  }
+
+  .focus__item {
+    padding: 1.35rem 1.4rem;
+  }
+
+  .focus__num {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    color: var(--vermilion);
+  }
+
+  .focus__title {
+    margin-top: 0.5rem;
+    font-size: var(--step-1);
+  }
+
+  .focus__body {
+    margin-top: 0.5rem;
+    font-size: 0.88rem;
+    line-height: 1.75;
+    color: var(--fg-muted);
+  }
+
+  /* ---------------- GitHub ---------------- */
+  .stats__grid {
+    display: grid;
+    gap: 0.9rem;
+    margin-top: 1.35rem;
+  }
+
+  /* ---------------- 联系 ---------------- */
+  .contact {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 2rem 2.15rem;
+    background: linear-gradient(
+      140deg,
+      color-mix(in srgb, var(--honey) 12%, var(--bg-elevated)),
+      var(--bg-elevated) 65%
+    );
+  }
+
+  .contact__title {
+    margin-top: 0.7rem;
+    font-size: var(--step-2);
+  }
+
+  .contact__body {
+    max-width: 42ch;
+    margin-top: 0.55rem;
+    font-size: 0.9rem;
+    line-height: 1.75;
+    color: var(--fg-muted);
+  }
+
+  .contact__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+
+  @media (max-width: 880px) {
+    .intro {
+      grid-template-columns: 1fr;
+    }
+
+    .intro__text {
+      max-width: 60ch;
+    }
+  }
+</style>

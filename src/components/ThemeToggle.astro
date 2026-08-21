@@ -1,0 +1,73 @@
+---
+---
+
+<button
+  type="button"
+  class="theme-toggle"
+  aria-label="切换明暗主题"
+  title="切换明暗主题"
+  data-theme-toggle
+>
+  <svg class="icon icon--sun" viewBox="0 0 24 24" aria-hidden="true">
+    <circle cx="12" cy="12" r="4.2" />
+    <g stroke-linecap="round">
+      <path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2" />
+      <path d="M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4L17 7M7 17l-1.6 1.6" />
+    </g>
+  </svg>
+  <svg class="icon icon--moon" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M20 14.4A8.6 8.6 0 1 1 9.6 4a7 7 0 0 0 10.4 10.4Z" />
+  </svg>
+</button>
+
+<script>
+  const root = document.documentElement;
+  document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+      root.dataset.theme = next;
+      localStorage.setItem('theme', next);
+    });
+  });
+</script>
+
+<style>
+  .theme-toggle {
+    display: grid;
+    place-items: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    color: var(--fg-muted);
+    transition: color var(--transition), border-color var(--transition),
+      background var(--transition), transform var(--transition);
+  }
+
+  .theme-toggle:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 8%, transparent);
+    transform: rotate(-15deg);
+  }
+
+  .icon {
+    width: 1.05rem;
+    height: 1.05rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+  }
+
+  .icon--moon {
+    display: none;
+  }
+
+  :global(:root[data-theme='dark']) .icon--sun {
+    display: none;
+  }
+
+  :global(:root[data-theme='dark']) .icon--moon {
+    display: block;
+  }
+</style>

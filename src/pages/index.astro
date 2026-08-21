@@ -1,0 +1,219 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import GitHubProfile from '@/components/GitHubProfile.astro';
+import Heatmap from '@/components/Heatmap.astro';
+import LanguageChart from '@/components/LanguageChart.astro';
+import RepoGrid from '@/components/RepoGrid.astro';
+import PostCard from '@/components/PostCard.astro';
+import { getPublishedPosts } from '@/utils/posts';
+import { withBase } from '@/utils/url';
+
+const posts = await getPublishedPosts();
+const recent = posts.slice(0, 4);
+---
+
+<BaseLayout>
+  <!-- ============ Hero ============ -->
+  <section class="hero">
+    <div class="wrap hero__grid">
+      <div class="hero__copy">
+        <p class="eyebrow">HPC · Slurm · Systems</p>
+
+        <h1 class="hero__title">
+          <span class="misprint">折腾系统</span><br />
+          <span class="hero__title-sub">也记录日常</span>
+        </h1>
+
+        <p class="hero__lead">
+          这里存放我在高性能计算、集群调度和系统工程上踩过的坑，
+          以及一些和工作无关的生活碎片。写给三个月后忘记细节的自己。
+        </p>
+
+        <div class="hero__actions">
+          <a class="btn" href={withBase('/posts')}>
+            开始阅读
+            <svg viewBox="0 0 16 16" aria-hidden="true">
+              <path
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M2.5 8h11m-4-4 4 4-4 4"
+              />
+            </svg>
+          </a>
+          <a class="btn btn--ghost" href={withBase('/about')}>关于我</a>
+        </div>
+      </div>
+
+      <div class="hero__card">
+        <GitHubProfile />
+      </div>
+    </div>
+
+    <span class="hero__blob" aria-hidden="true"></span>
+  </section>
+
+  <!-- ============ 最新文章 ============ -->
+  <section class="wrap block">
+    <header class="block__head">
+      <p class="eyebrow">Latest Writing</p>
+      <a class="block__more" href={withBase('/posts')}>全部 {posts.length} 篇 →</a>
+    </header>
+
+    <div class="posts">
+      {recent.map((post, i) => <PostCard post={post} featured={i === 0} />)}
+    </div>
+  </section>
+
+  <!-- ============ GitHub 动态 ============ -->
+  <section class="wrap block">
+    <div class="gh">
+      <Heatmap />
+      <LanguageChart />
+      <RepoGrid />
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* ---------------- Hero ---------------- */
+  .hero {
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(
+      175deg,
+      color-mix(in srgb, var(--honey) 9%, transparent),
+      transparent 55%
+    );
+  }
+
+  .hero__grid {
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    align-items: center;
+    gap: clamp(2rem, 5vw, 4rem);
+    padding-block: clamp(3.25rem, 8vw, 6rem);
+  }
+
+  .hero__title {
+    margin-top: 1.15rem;
+    font-size: var(--step-4);
+    line-height: 1.06;
+  }
+
+  .hero__title-sub {
+    color: var(--fg-muted);
+    font-weight: 400;
+    font-style: italic;
+  }
+
+  .hero__lead {
+    max-width: 34ch;
+    margin-top: 1.4rem;
+    font-size: var(--step-1);
+    line-height: 1.72;
+    color: var(--fg-muted);
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    margin-top: 2rem;
+  }
+
+  .hero__actions svg {
+    width: 0.9rem;
+    height: 0.9rem;
+  }
+
+  /* 背景网点圆：复古印刷的装饰，不抢内容 */
+  .hero__blob {
+    position: absolute;
+    top: -20%;
+    right: -6%;
+    width: 26rem;
+    height: 26rem;
+    border-radius: 100%;
+    background-image: radial-gradient(
+      color-mix(in srgb, var(--vermilion) 42%, transparent) 1.8px,
+      transparent 1.9px
+    );
+    background-size: 10px 10px;
+    mask-image: radial-gradient(circle at center, #000 30%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .hero__grid {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ---------------- 区块 ---------------- */
+  .block {
+    padding-top: clamp(3rem, 6vw, 4.5rem);
+  }
+
+  .block__head {
+    display: flex;
+    align-items: baseline;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .block__head .eyebrow {
+    flex: 1;
+  }
+
+  .block__more {
+    flex-shrink: 0;
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--fg-muted);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .block__more:hover {
+    color: var(--accent);
+  }
+
+  .block__note {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .posts {
+    display: grid;
+    gap: 0.9rem;
+  }
+
+  .gh {
+    display: grid;
+    gap: 0.9rem;
+  }
+
+  /* ---------------- 响应式 ---------------- */
+  @media (max-width: 900px) {
+    .hero__grid {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+    }
+
+    .hero__lead {
+      max-width: 48ch;
+    }
+
+    .hero__blob {
+      top: auto;
+      bottom: -30%;
+      right: -30%;
+      width: 20rem;
+      height: 20rem;
+    }
+  }
+</style>

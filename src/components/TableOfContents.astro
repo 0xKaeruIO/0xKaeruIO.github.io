@@ -1,0 +1,112 @@
+---
+import type { MarkdownHeading } from 'astro';
+
+interface Props {
+  headings: MarkdownHeading[];
+}
+
+// 只收 h2/h3：更深的层级在侧边栏里会挤成一团
+const items = Astro.props.headings.filter((h) => h.depth === 2 || h.depth === 3);
+---
+
+{
+  items.length > 1 && (
+    <nav class="toc" aria-labelledby="toc-title">
+      <p class="eyebrow" id="toc-title">Contents</p>
+      <ol class="toc__list">
+        {items.map((h) => (
+          <li class:list={['toc__item', h.depth === 3 && 'toc__item--sub']}>
+            <a href={`#${h.slug}`} data-toc-link={h.slug}>
+              {h.text}
+            </a>
+          </li>
+        ))}
+      </ol>
+    </nav>
+  )
+}
+
+<script>
+  const links = document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]');
+  if (links.length > 0) {
+    const bySlug = new Map<string, HTMLAnchorElement>();
+    links.forEach((a) => bySlug.set(a.dataset.tocLink!, a));
+
+    const headings = [...bySlug.keys()]
+      .map((slug) => document.getElementById(slug))
+      .filter((el): el is HTMLElement => el !== null);
+
+    let active: HTMLAnchorElement | undefined;
+    const setActive = (slug: string) => {
+      const next = bySlug.get(slug);
+      if (!next || next === active) return;
+      active?.removeAttribute('aria-current');
+      next.setAttribute('aria-current', 'true');
+      active = next;
+    };
+
+    // 取当前视口上方最靠下的那个标题作为「正在阅读」
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        if (visible[0]) setActive(visible[0].target.id);
+      },
+      { rootMargin: '-72px 0px -70% 0px', threshold: 0 },
+    );
+
+    headings.forEach((h) => observer.observe(h));
+  }
+</script>
+
+<style>
+  .toc {
+    position: sticky;
+    top: 5.5rem;
+    max-height: calc(100vh - 8rem);
+    overflow-y: auto;
+    padding-left: 1.1rem;
+    border-left: 1px solid var(--border);
+    scrollbar-width: thin;
+  }
+
+  .toc__list {
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: toc;
+  }
+
+  .toc__item {
+    margin-bottom: 0.15rem;
+  }
+
+  .toc__item a {
+    display: block;
+    padding: 0.24rem 0;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    color: var(--fg-muted);
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    padding-left: 0.65rem;
+    margin-left: -1.15rem;
+    transition: color var(--transition), border-color var(--transition);
+  }
+
+  .toc__item--sub a {
+    padding-left: 1.5rem;
+    font-size: 0.78rem;
+    color: var(--fg-faint);
+  }
+
+  .toc__item a:hover {
+    color: var(--ink);
+  }
+
+  .toc__item a[aria-current='true'] {
+    color: var(--vermilion);
+    border-left-color: var(--vermilion);
+  }
+</style>

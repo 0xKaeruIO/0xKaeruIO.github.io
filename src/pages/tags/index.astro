@@ -1,0 +1,83 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHeader from '@/components/PageHeader.astro';
+import { getAllTags } from '@/utils/posts';
+import { withBase } from '@/utils/url';
+
+const tags = await getAllTags();
+const max = Math.max(1, ...tags.map((t) => t.count));
+---
+
+<BaseLayout title="标签" description="按主题浏览全部文章。">
+  <PageHeader
+    eyebrow="Tags"
+    title="标签索引"
+    description="按主题浏览。字号越大，写得越多。"
+    count={tags.length}
+    unit="个"
+  />
+
+  <div class="wrap cloud-wrap">
+    <ul class="cloud">
+      {
+        tags.map((t) => (
+          <li>
+            <a
+              class="chip"
+              href={withBase(`/tags/${encodeURIComponent(t.tag)}`)}
+              style={`--w:${(t.count / max).toFixed(2)}`}
+            >
+              {t.tag}
+              <span class="chip__count">{t.count}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</BaseLayout>
+
+<style>
+  .cloud-wrap {
+    padding-top: clamp(2rem, 4vw, 3rem);
+  }
+
+  .cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* --w 是该标签的相对热度（0~1），驱动字号、色彩与边框 */
+  .chip {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.45rem;
+    padding: 0.42rem 0.95rem;
+    border: 1px solid color-mix(in srgb, var(--vermilion) calc(18% + var(--w) * 55%), var(--border));
+    border-radius: 100px;
+    background: color-mix(in srgb, var(--vermilion) calc(var(--w) * 9%), var(--bg-elevated));
+    font-size: calc(0.85rem + var(--w) * 0.42rem);
+    color: color-mix(in srgb, var(--ink) calc(60% + var(--w) * 40%), var(--fg-muted));
+    text-decoration: none;
+    transition: transform var(--transition), box-shadow var(--transition),
+      background var(--transition), color var(--transition);
+  }
+
+  .chip:hover {
+    color: var(--accent-fg);
+    background: var(--vermilion);
+    border-color: var(--vermilion);
+    transform: translate(-2px, -2px);
+    box-shadow: 3px 3px 0 0 var(--shadow-hard);
+  }
+
+  .chip__count {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    opacity: 0.6;
+  }
+</style>

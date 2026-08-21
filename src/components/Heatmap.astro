@@ -1,0 +1,263 @@
+---
+import { github } from '@/utils/github';
+
+const { contributions } = github;
+const { weeks, total, streak, activeDays, busiestDay } = contributions;
+
+const MONTHS = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+const WEEKDAYS = ['', '周一', '', '周三', '', '周五', ''];
+
+/** 为每一周计算月份标签：月份切换且与上一个标签间隔足够时才显示，避免挤在一起。 */
+const monthLabels: { index: number; label: string }[] = [];
+let lastMonth = -1;
+let lastLabelIndex = -99;
+weeks.forEach((week, i) => {
+  const firstDay = week.find((d) => d !== null);
+  if (!firstDay) return;
+  const month = new Date(`${firstDay.date}T00:00:00Z`).getUTCMonth();
+  if (month !== lastMonth && i - lastLabelIndex >= 3 && i < weeks.length - 1) {
+    monthLabels.push({ index: i, label: MONTHS[month] });
+    lastMonth = month;
+    lastLabelIndex = i;
+  }
+});
+
+const dayFmt = new Intl.DateTimeFormat('zh-CN', {
+  month: 'long',
+  day: 'numeric',
+  timeZone: 'UTC',
+});
+const labelFor = (day: { date: string; count: number }) =>
+  `${dayFmt.format(new Date(`${day.date}T00:00:00Z`))} · ${day.count === 0 ? '没有提交' : `${day.count} 次贡献`}`;
+---
+
+<section class="heat card" aria-labelledby="heat-title">
+  <header class="heat__head">
+    <div>
+      <p class="eyebrow" id="heat-title">Contribution Graph</p>
+      <p class="heat__total">
+        过去一年 <strong>{total}</strong> 次贡献
+      </p>
+    </div>
+    <ul class="legend" aria-hidden="true">
+      <li class="legend__label">少</li>
+      {[0, 1, 2, 3, 4].map((l) => <li class="cell" data-level={l}></li>)}
+      <li class="legend__label">多</li>
+    </ul>
+  </header>
+
+  <div class="heat__scroll">
+    <div class="heat__body">
+      <div class="weekdays" aria-hidden="true">
+        {WEEKDAYS.map((d) => <span>{d}</span>)}
+      </div>
+
+      <div class="heat__cols">
+        <div class="months" aria-hidden="true">
+          {
+            monthLabels.map((m) => (
+              <span style={`grid-column: ${m.index + 1}`}>{m.label}</span>
+            ))
+          }
+        </div>
+
+        <div class="grid" role="img" aria-label={`贡献热力图，过去一年共 ${total} 次贡献`}>
+          {
+            weeks.map((week) =>
+              week.map((day) =>
+                day === null ? (
+                  <span class="cell cell--empty"></span>
+                ) : (
+                  <span class="cell" data-level={day.level} title={labelFor(day)}></span>
+                ),
+              ),
+            )
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="heat__foot">
+    {activeDays !== undefined && <span class="meta">活跃 {activeDays} 天</span>}
+    <span class="meta">当前连续 {streak.current} 天</span>
+    <span class="meta">最长连续 {streak.longest} 天</span>
+    {
+      busiestDay && busiestDay.count > 0 && (
+        <span class="meta">最忙 {busiestDay.date}（{busiestDay.count} 次）</span>
+      )
+    }
+  </footer>
+</section>
+
+<style>
+  .heat {
+    padding: 1.4rem 1.5rem 1.25rem;
+    --cell: 11px;
+    --gap: 3px;
+  }
+
+  .heat__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 1.15rem;
+  }
+
+  .heat__head > div {
+    flex: 1;
+    min-width: 12rem;
+  }
+
+  .heat__total {
+    margin-top: 0.45rem;
+    font-family: var(--font-serif);
+    font-size: var(--step-1);
+    color: var(--ink);
+  }
+
+  .heat__total strong {
+    color: var(--vermilion);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* 图例 */
+  .legend {
+    display: flex;
+    align-items: center;
+    gap: var(--gap);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .legend__label {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    color: var(--fg-faint);
+    margin-inline: 0.25rem;
+  }
+
+  /* 滚动容器：窄屏时横向滚动，并对齐到最新一周 */
+  .heat__scroll {
+    overflow-x: auto;
+    scrollbar-width: thin;
+    padding-bottom: 0.35rem;
+  }
+
+  .heat__body {
+    display: flex;
+    gap: 0.4rem;
+    min-width: max-content;
+  }
+
+  .weekdays {
+    display: grid;
+    grid-template-rows: repeat(7, var(--cell));
+    gap: var(--gap);
+    padding-top: calc(0.72rem + var(--gap));
+    font-family: var(--font-mono);
+    font-size: 0.56rem;
+    color: var(--fg-faint);
+  }
+
+  .weekdays span {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .heat__cols {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap);
+  }
+
+  .months,
+  .grid {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: var(--cell);
+    gap: var(--gap);
+  }
+
+  .months {
+    grid-template-rows: 0.72rem;
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    color: var(--fg-faint);
+  }
+
+  .months span {
+    grid-row: 1;
+    white-space: nowrap;
+    line-height: 1;
+  }
+
+  .grid {
+    grid-template-rows: repeat(7, var(--cell));
+  }
+
+  /* 格子：色阶由砂色 → 蜜金 → 朱红，呼应站点主色 */
+  .cell {
+    width: var(--cell);
+    height: var(--cell);
+    border-radius: 2px;
+    background: var(--lvl-0);
+  }
+
+  .cell[data-level='1'] {
+    background: var(--lvl-1);
+  }
+  .cell[data-level='2'] {
+    background: var(--lvl-2);
+  }
+  .cell[data-level='3'] {
+    background: var(--lvl-3);
+  }
+  .cell[data-level='4'] {
+    background: var(--lvl-4);
+  }
+
+  .cell--empty {
+    background: transparent;
+  }
+
+  .heat {
+    --lvl-0: color-mix(in srgb, var(--sand) 45%, transparent);
+    --lvl-1: color-mix(in srgb, var(--honey) 42%, transparent);
+    --lvl-2: color-mix(in srgb, var(--honey) 78%, transparent);
+    --lvl-3: color-mix(in srgb, var(--vermilion) 62%, transparent);
+    --lvl-4: var(--vermilion);
+  }
+
+  .grid .cell:not(.cell--empty) {
+    transition: outline-color 120ms ease;
+    outline: 1.5px solid transparent;
+    outline-offset: 1px;
+  }
+
+  .grid .cell:not(.cell--empty):hover {
+    outline-color: var(--ink);
+  }
+
+  .heat__foot {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.1rem;
+    margin-top: 0.9rem;
+    padding-top: 0.85rem;
+    border-top: 1px dashed var(--border);
+  }
+</style>
+
+<script>
+  // 打开页面时把热力图滚到最右侧（最近的日期）
+  document.querySelectorAll<HTMLElement>('.heat__scroll').forEach((el) => {
+    el.scrollLeft = el.scrollWidth;
+  });
+</script>

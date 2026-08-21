@@ -1,0 +1,187 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHeader from '@/components/PageHeader.astro';
+import PostCard from '@/components/PostCard.astro';
+import { getPublishedPosts } from '@/utils/posts';
+import { CATEGORY_LABELS } from '@/consts';
+
+const posts = await getPublishedPosts();
+
+// 按年份分组，像翻一本按年归档的笔记本
+const byYear = new Map<number, typeof posts>();
+for (const post of posts) {
+  const year = post.data.pubDate.getFullYear();
+  byYear.set(year, [...(byYear.get(year) ?? []), post]);
+}
+const years = [...byYear.entries()].sort((a, b) => b[0] - a[0]);
+
+const filters = [
+  { value: 'all', label: '全部', count: posts.length },
+  ...(['tech', 'life'] as const).map((c) => ({
+    value: c,
+    label: CATEGORY_LABELS[c],
+    count: posts.filter((p) => p.data.category === c).length,
+  })),
+].filter((f) => f.count > 0);
+---
+
+<BaseLayout title="文章" description="全部文章归档：高性能计算、Slurm 调度、系统运维，以及生活随笔。">
+  <PageHeader
+    eyebrow="Writing"
+    title="文章归档"
+    description="技术笔记与生活随笔"
+    count={posts.length}
+  >
+    {
+      filters.length > 1 && (
+        <div class="filters" role="group" aria-label="按分类筛选">
+          {filters.map((f, i) => (
+            <button
+              type="button"
+              class="filter"
+              data-filter={f.value}
+              aria-pressed={i === 0 ? 'true' : 'false'}
+            >
+              {f.label}
+              <span class="filter__count">{f.count}</span>
+            </button>
+          ))}
+        </div>
+      )
+    }
+  </PageHeader>
+
+  <div class="wrap archive">
+    {
+      years.map(([year, list]) => (
+        <section class="year" data-year-group>
+          <h2 class="year__label">
+            <span>{year}</span>
+          </h2>
+          <div class="year__list">
+            {list.map((post) => (
+              <div data-category={post.data.category}>
+                <PostCard post={post} />
+              </div>
+            ))}
+          </div>
+        </section>
+      ))
+    }
+  </div>
+</BaseLayout>
+
+<script>
+  const buttons = document.querySelectorAll<HTMLButtonElement>('[data-filter]');
+  const items = document.querySelectorAll<HTMLElement>('[data-category]');
+  const groups = document.querySelectorAll<HTMLElement>('[data-year-group]');
+
+  buttons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.filter!;
+      buttons.forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+
+      items.forEach((item) => {
+        item.hidden = target !== 'all' && item.dataset.category !== target;
+      });
+
+      // 过滤后整年为空时，把年份标题也一起收起来
+      groups.forEach((group) => {
+        const visible = [...group.querySelectorAll<HTMLElement>('[data-category]')].some(
+          (el) => !el.hidden,
+        );
+        group.hidden = !visible;
+      });
+    });
+  });
+</script>
+
+<style>
+  /* 分类筛选 */
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-top: 1.5rem;
+  }
+
+  .filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.32rem 0.85rem;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    font-size: 0.85rem;
+    color: var(--fg-muted);
+    background: var(--bg-elevated);
+    transition: all var(--transition);
+  }
+
+  .filter:hover {
+    border-color: var(--ink);
+    color: var(--ink);
+  }
+
+  .filter[aria-pressed='true'] {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--bg);
+  }
+
+  .filter__count {
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    opacity: 0.65;
+  }
+
+  /* 年份归档 */
+  .archive {
+    padding-top: clamp(2rem, 4vw, 3rem);
+  }
+
+  .year {
+    display: grid;
+    grid-template-columns: 6rem minmax(0, 1fr);
+    gap: 1.5rem;
+    padding-bottom: 2.75rem;
+  }
+
+  .year__label {
+    position: sticky;
+    top: 5rem;
+    align-self: start;
+    font-family: var(--font-mono);
+    font-size: 1.05rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--fg-faint);
+    line-height: 1;
+  }
+
+  .year__label span {
+    display: block;
+    padding-top: 1.35rem;
+    border-top: 2px solid var(--vermilion);
+  }
+
+  .year__list {
+    display: grid;
+    gap: 0.9rem;
+  }
+
+  @media (max-width: 720px) {
+    .year {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .year__label {
+      position: static;
+    }
+
+    .year__label span {
+      padding-top: 0.6rem;
+    }
+  }
+</style>

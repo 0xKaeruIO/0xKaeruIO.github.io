@@ -1,0 +1,235 @@
+---
+import ThemeToggle from './ThemeToggle.astro';
+import { NAV_LINKS, SITE } from '@/consts';
+import { isActivePath, withBase } from '@/utils/url';
+
+const current = Astro.url.pathname;
+---
+
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" href={withBase('/')}>
+      <span class="brand__mark" aria-hidden="true"></span>
+      <span class="brand__text misprint">{SITE.title}</span>
+    </a>
+
+    <nav class="nav" aria-label="主导航">
+      {
+        NAV_LINKS.map((link) => (
+          <a
+            class="nav__link"
+            href={withBase(link.href)}
+            aria-current={isActivePath(current, link.href) ? 'page' : undefined}
+          >
+            <span class="nav__zh">{link.label}</span>
+            <span class="nav__en">{link.en}</span>
+          </a>
+        ))
+      }
+    </nav>
+
+    <div class="actions">
+      <a
+        class="icon-link"
+        href={`https://github.com/${SITE.githubUser}`}
+        target="_blank"
+        rel="noopener"
+        aria-label="GitHub"
+      >
+        <svg viewBox="0 0 16 16" aria-hidden="true">
+          <path
+            fill="currentColor"
+            d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-2.91-.88-2.91-3.9 0-.86.31-1.56.82-2.11-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.4 7.4 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.55.82 1.24.82 2.11 0 3.03-1.14 3.7-2.92 3.9.3.26.56.76.56 1.54 0 1.11-.01 2.01-.01 2.29 0 .21.15.46.55.38A7.99 7.99 0 0 0 16 8c0-4.42-3.58-8-8-8Z"
+          />
+        </svg>
+      </a>
+      <ThemeToggle />
+    </div>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    border-bottom: 1px solid var(--border);
+    background: color-mix(in srgb, var(--bg) 86%, transparent);
+    backdrop-filter: saturate(140%) blur(10px);
+  }
+
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-height: 3.75rem;
+  }
+
+  /* 品牌区 */
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+
+  .brand__mark {
+    width: 0.62rem;
+    height: 0.62rem;
+    border-radius: 100px;
+    background: var(--vermilion);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--vermilion) 16%, transparent);
+    transition: transform var(--transition), background var(--transition);
+  }
+
+  .brand:hover .brand__mark {
+    transform: scale(1.25);
+    background: var(--teal);
+  }
+
+  .brand__text {
+    font-family: var(--font-serif);
+    font-size: 1.22rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+
+  /* 导航 */
+  .nav {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.1rem, 1.4vw, 0.5rem);
+    margin-left: auto;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav__link {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.05rem;
+    padding: 0.35rem 0.62rem;
+    border-radius: var(--radius);
+    text-decoration: none;
+    color: var(--fg-muted);
+    white-space: nowrap;
+    transition: color var(--transition), background var(--transition);
+  }
+
+  .nav__link:hover {
+    color: var(--ink);
+    background: color-mix(in srgb, var(--sand) 32%, transparent);
+  }
+
+  .nav__link[aria-current='page'] {
+    color: var(--ink);
+  }
+
+  .nav__link[aria-current='page']::after {
+    content: '';
+    position: absolute;
+    bottom: -0.1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0.3rem;
+    height: 0.3rem;
+    border-radius: 100px;
+    background: var(--vermilion);
+  }
+
+  .nav__zh {
+    font-size: 0.92rem;
+    line-height: 1.25;
+  }
+
+  .nav__en {
+    font-family: var(--font-mono);
+    font-size: 0.56rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--fg-faint);
+    line-height: 1;
+  }
+
+  /* 右侧动作区 */
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding-left: 0.6rem;
+    border-left: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .icon-link {
+    display: grid;
+    place-items: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 100px;
+    border: 1px solid transparent;
+    color: var(--fg-muted);
+    transition: color var(--transition), border-color var(--transition);
+  }
+
+  .icon-link:hover {
+    color: var(--ink);
+    border-color: var(--border);
+  }
+
+  .icon-link svg {
+    width: 1.05rem;
+    height: 1.05rem;
+  }
+
+  @media (max-width: 640px) {
+    .nav__en {
+      display: none;
+    }
+
+    .nav__link {
+      padding-inline: 0.45rem;
+    }
+
+    .actions {
+      padding-left: 0.35rem;
+      gap: 0.25rem;
+    }
+  }
+
+  /* 窄屏优先保证 5 个导航项都能露出来，其余元素让位 */
+  @media (max-width: 480px) {
+    .brand__text {
+      font-size: 1.08rem;
+    }
+
+    .nav {
+      gap: 0;
+    }
+
+    .nav__link {
+      padding-inline: 0.34rem;
+    }
+
+    .nav__zh {
+      font-size: 0.86rem;
+    }
+
+    .icon-link {
+      display: none;
+    }
+
+    .actions {
+      border-left: none;
+      padding-left: 0.2rem;
+    }
+  }
+</style>

@@ -1,0 +1,74 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { withBase } from '@/utils/url';
+---
+
+<BaseLayout title="404" description="这个页面不存在。">
+  <div class="wrap nf">
+    <p class="nf__code misprint">404</p>
+    <h1 class="nf__title">这个节点没有响应</h1>
+    <p class="nf__body">
+      你要找的页面不在这里。可能是链接过期了，也可能是我把文件挪走了。
+    </p>
+
+    <pre class="nf__term"><code>$ scontrol show node this-page
+Node this-page not found</code></pre>
+
+    <div class="nf__actions">
+      <a class="btn" href={withBase('/')}>回到首页</a>
+      <a class="btn btn--ghost" href={withBase('/posts')}>浏览文章</a>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .nf {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding-block: clamp(4rem, 12vw, 8rem);
+  }
+
+  .nf__code {
+    font-family: var(--font-serif);
+    font-size: clamp(4.5rem, 16vw, 9rem);
+    font-weight: 600;
+    line-height: 1;
+    color: var(--ink);
+  }
+
+  .nf__title {
+    margin-top: 1.25rem;
+    font-size: var(--step-2);
+  }
+
+  .nf__body {
+    max-width: 34ch;
+    margin-top: 0.85rem;
+    color: var(--fg-muted);
+    line-height: 1.75;
+  }
+
+  .nf__term {
+    margin-top: 2rem;
+    padding: 1rem 1.35rem;
+    text-align: left;
+    font-size: 0.8rem;
+    line-height: 1.7;
+    color: var(--fg-muted);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: 4px 4px 0 0 color-mix(in srgb, var(--shadow-hard) 12%, transparent);
+    overflow-x: auto;
+  }
+
+  .nf__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.6rem;
+    margin-top: 2.25rem;
+  }
+</style>

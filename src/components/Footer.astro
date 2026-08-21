@@ -1,0 +1,96 @@
+---
+import { NAV_LINKS, SITE } from '@/consts';
+import { withBase } from '@/utils/url';
+import github from '@/data/github.json';
+
+const year = new Date().getFullYear();
+const synced = new Date(github.generatedAt).toLocaleString('zh-CN', {
+  timeZone: 'Asia/Shanghai',
+  dateStyle: 'medium',
+  timeStyle: 'short',
+});
+---
+
+<footer class="site-footer">
+  <div class="wrap inner">
+    <div class="col">
+      <p class="sign misprint">{SITE.title}</p>
+      <p class="note">{SITE.tagline}</p>
+    </div>
+
+    <nav class="col links" aria-label="页脚导航">
+      {NAV_LINKS.map((l) => <a href={withBase(l.href)}>{l.label}</a>)}
+      <a href={withBase('/rss.xml')}>RSS</a>
+      <a href={`https://github.com/${SITE.githubUser}`} target="_blank" rel="noopener">GitHub</a>
+    </nav>
+
+    <div class="col legal">
+      <p class="meta">© {year} {SITE.author}</p>
+      <p class="meta">Built with Astro · 数据同步于 {synced}</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: 5rem;
+    border-top: 1px solid var(--border);
+    background: color-mix(in srgb, var(--bg-sunken) 60%, transparent);
+  }
+
+  .inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.75rem;
+    padding-block: 2.5rem 2.75rem;
+  }
+
+  .col {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .sign {
+    font-family: var(--font-serif);
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .note {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--fg-faint);
+  }
+
+  .links {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.35rem 1.1rem;
+  }
+
+  .links a {
+    font-size: var(--step--1);
+    color: var(--fg-muted);
+    text-decoration: none;
+  }
+
+  .links a:hover {
+    color: var(--accent);
+  }
+
+  .legal {
+    align-items: flex-end;
+    text-align: right;
+  }
+
+  @media (max-width: 720px) {
+    .legal {
+      align-items: flex-start;
+      text-align: left;
+    }
+  }
+</style>
