@@ -24,3 +24,4 @@ Thumbs.db
 .idea/
 temp/
 .cursor/
+src/data/github.json
