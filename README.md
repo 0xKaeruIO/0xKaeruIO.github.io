@@ -51,6 +51,12 @@ excerpt: 列表页显示的一行提要，省略则回退到 description
 
 字段定义在 `src/content.config.ts`，写错会在构建时报错而不是静默失败。
 
+配图放在 `src/content/posts/images/<文章文件名>/`，正文用相对路径引用，示例见 `embed-local-images.md`：
+
+```markdown
+![说明](./images/embed-local-images/web_icon.png)
+```
+
 发布流程：提交并推送到 `main`，GitHub Actions 会自动构建部署。
 
 ```bash

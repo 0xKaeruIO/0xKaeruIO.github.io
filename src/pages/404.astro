@@ -6,13 +6,13 @@ import { withBase } from '@/utils/url';
 <BaseLayout title="404" description="这个页面不存在。">
   <div class="wrap nf">
     <p class="nf__code misprint">404</p>
-    <h1 class="nf__title">这个节点没有响应</h1>
+    <h1 class="nf__title">这个页面没有响应</h1>
     <p class="nf__body">
       你要找的页面不在这里。可能是链接过期了，也可能是我把文件挪走了。
     </p>
 
-    <pre class="nf__term"><code>$ scontrol show node this-page
-Node this-page not found</code></pre>
+    <pre class="nf__term"><code>$ 豆包 ask "为什么的文章不存在"
+<code style="color: #D97757;">可能是笨蛋博主删掉了</code></code></pre>
 
     <div class="nf__actions">
       <a class="btn" href={withBase('/')}>回到首页</a>
@@ -54,7 +54,7 @@ Node this-page not found</code></pre>
     margin-top: 2rem;
     padding: 1rem 1.35rem;
     text-align: left;
-    font-size: 0.8rem;
+    font-size: 1.2rem;
     line-height: 1.7;
     color: var(--fg-muted);
     background: var(--bg-elevated);
