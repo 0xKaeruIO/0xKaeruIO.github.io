@@ -31,6 +31,17 @@ const current = Astro.url.pathname;
     <div class="actions">
       <a
         class="icon-link"
+        href={withBase('/search')}
+        aria-label="搜索文章"
+        aria-current={isActivePath(current, '/search') ? 'page' : undefined}
+      >
+        <svg viewBox="0 0 16 16" aria-hidden="true">
+          <circle cx="6.5" cy="6.5" r="4.2" fill="none" stroke="currentColor" stroke-width="1.6" />
+          <path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="m10.2 10.2 3.4 3.4" />
+        </svg>
+      </a>
+      <a
+        class="icon-link icon-link--gh"
         href={`https://github.com/${SITE.githubUser}`}
         target="_blank"
         rel="noopener"
@@ -223,7 +234,7 @@ const current = Astro.url.pathname;
       font-size: 0.86rem;
     }
 
-    .icon-link {
+    .icon-link--gh {
       display: none;
     }
 

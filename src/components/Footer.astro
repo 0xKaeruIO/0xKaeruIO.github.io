@@ -20,6 +20,7 @@ const synced = new Date(github.generatedAt).toLocaleString('zh-CN', {
 
     <nav class="col links" aria-label="页脚导航">
       {NAV_LINKS.map((l) => <a href={withBase(l.href)}>{l.label}</a>)}
+      <a href={withBase('/search')}>搜索</a>
       <a href={withBase('/rss.xml')}>RSS</a>
       <a href={`https://github.com/${SITE.githubUser}`} target="_blank" rel="noopener">GitHub</a>
     </nav>

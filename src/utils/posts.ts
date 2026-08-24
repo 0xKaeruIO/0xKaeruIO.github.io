@@ -43,7 +43,44 @@ export function getAdjacent(posts: Post[], id: string) {
   };
 }
 
-/** 同标签优先、同分类兜底的相关文章推荐。 */
+/** 去掉围栏代码和标记，留给搜索索引用。 */
+function stripMarkdown(md: string): string {
+  return md
+    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/`[^`]*`/g, ' ')
+    .replace(/!\[[^\]]*\]\([^)]+\)/g, ' ')
+    .replace(/\[([^\]]*)\]\([^)]+\)/g, '$1')
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/[*_>#|~\-]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+export interface SearchEntry {
+  id: string;
+  title: string;
+  description: string;
+  excerpt: string;
+  category: 'tech' | 'life';
+  tags: string[];
+  pubDate: string;
+  body: string;
+}
+
+export async function getSearchIndex(): Promise<SearchEntry[]> {
+  const posts = await getPublishedPosts();
+  return posts.map((post) => ({
+    id: post.id,
+    title: post.data.title,
+    description: post.data.description,
+    excerpt: post.data.excerpt ?? post.data.description,
+    category: post.data.category,
+    tags: post.data.tags,
+    pubDate: post.data.pubDate.toISOString(),
+    body: stripMarkdown(post.body ?? ''),
+  }));
+}
+
 export function getRelated(posts: Post[], current: Post, limit = 3): Post[] {
   const tags = new Set(current.data.tags);
   return posts
