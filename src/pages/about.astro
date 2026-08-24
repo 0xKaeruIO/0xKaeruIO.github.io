@@ -165,6 +165,7 @@ const focus = [
     display: grid;
     gap: 0.9rem;
     margin-top: 1.35rem;
+    min-width: 0;
   }
 
   /* ---------------- 联系 ---------------- */
@@ -208,6 +209,48 @@ const focus = [
 
     .intro__text {
       max-width: 60ch;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .about {
+      padding-top: 1.35rem;
+    }
+
+    .about > section + section {
+      margin-top: 1.85rem;
+    }
+
+    .intro {
+      gap: 1.1rem;
+    }
+
+    .intro__card {
+      order: -1;
+    }
+
+    .intro__text {
+      max-width: none;
+      line-height: 1.75;
+    }
+
+    .focus__grid {
+      grid-template-columns: 1fr;
+      gap: 0.55rem;
+      margin-top: 0.8rem;
+    }
+
+    .focus__item {
+      padding: 0.95rem 1.05rem;
+    }
+
+    .stats__grid {
+      gap: 0.65rem;
+      margin-top: 0.8rem;
+    }
+
+    .contact {
+      padding: 1.1rem 1.05rem;
     }
   }
 </style>

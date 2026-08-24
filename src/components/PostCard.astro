@@ -109,21 +109,35 @@ const minutes = readingTime(post.body);
     white-space: nowrap;
   }
 
-  @media (max-width: 560px) {
+  @media (max-width: 720px) {
     .post__link {
-      grid-template-columns: 1fr;
-      gap: 0.7rem;
-      padding: 1.1rem 1.15rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.28rem;
+      padding: 0.9rem 1.05rem;
     }
 
     .post__side {
       flex-direction: row;
-      align-items: center;
-      gap: 0.7rem;
-      padding-right: 0;
-      padding-bottom: 0.6rem;
-      border-right: none;
-      border-bottom: 1px dashed var(--border);
+      align-items: baseline;
+      gap: 0.55rem;
+      padding: 0;
+      border: none;
+    }
+
+    .post__title {
+      font-size: 1.02rem;
+      line-height: 1.4;
+    }
+
+    .post__desc {
+      margin-top: 0.2rem;
+      font-size: 0.84rem;
+      line-height: 1.6;
+    }
+
+    .post__foot {
+      margin-top: 0.5rem;
     }
   }
 </style>

@@ -124,6 +124,7 @@ html {
 
 body {
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   font-family: var(--font-sans);
@@ -133,6 +134,7 @@ body {
   background-color: var(--bg);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  -webkit-tap-highlight-color: color-mix(in srgb, var(--vermilion) 18%, transparent);
   transition: background-color var(--transition), color var(--transition);
 }
 
@@ -548,4 +550,47 @@ a.tag:hover {
   font-style: var(--shiki-dark-font-style) !important;
   font-weight: var(--shiki-dark-font-weight) !important;
   text-decoration: var(--shiki-dark-text-decoration) !important;
+}
+
+/* 手机竖屏：统一节奏，桌面样式不动 */
+@media (max-width: 720px) {
+  html {
+    scroll-padding-top: 6.4rem;
+  }
+
+  :root {
+    --gutter: 1.1rem;
+  }
+
+  .wrap {
+    padding-inline: max(1.1rem, env(safe-area-inset-left))
+      max(1.1rem, env(safe-area-inset-right));
+  }
+
+  .prose :not(pre) > code {
+    white-space: break-spaces;
+  }
+
+  .prose pre {
+    padding: 0.85rem 0.95rem;
+    font-size: 0.78rem;
+  }
+
+  .prose h2 {
+    margin-top: 1.85em;
+  }
+
+  .eyebrow {
+    letter-spacing: 0.12em;
+    gap: 0.45rem;
+  }
+
+  .card {
+    border-radius: 12px;
+  }
+
+  .card--lift:hover {
+    transform: none;
+    box-shadow: none;
+  }
 }

@@ -186,6 +186,7 @@ const tagBase = withBase('/tags');
     flex: 1 1 12rem;
     min-width: 0;
     padding: 0.62rem 0.9rem;
+    font-size: 1rem;
     border: 1px solid var(--border-strong);
     border-radius: var(--radius);
     background: var(--bg-elevated);
@@ -272,21 +273,39 @@ const tagBase = withBase('/tags');
     margin-top: 0.85rem;
   }
 
-  @media (max-width: 560px) {
+  @media (max-width: 720px) {
+    .box {
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .list {
+      gap: 0.55rem;
+    }
+
     .hit__link {
-      grid-template-columns: 1fr;
-      gap: 0.7rem;
-      padding: 1.1rem 1.15rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.28rem;
+      padding: 0.9rem 1.05rem;
     }
 
     .hit__side {
       flex-direction: row;
-      align-items: center;
-      gap: 0.7rem;
-      padding-right: 0;
-      padding-bottom: 0.6rem;
-      border-right: none;
-      border-bottom: 1px dashed var(--border);
+      align-items: baseline;
+      gap: 0.55rem;
+      padding: 0;
+      border: none;
+    }
+
+    .hit__desc {
+      margin-top: 0.2rem;
+      font-size: 0.84rem;
+      line-height: 1.6;
+    }
+
+    .hit__foot {
+      margin-top: 0.5rem;
     }
   }
 </style>

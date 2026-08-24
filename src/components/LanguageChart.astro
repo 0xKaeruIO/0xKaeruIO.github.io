@@ -42,6 +42,8 @@ const rows = [
   .langs {
     padding: 1.4rem 0 1.25rem;
     overflow: hidden;
+    min-width: 0;
+    max-width: 100%;
   }
 
   .langs :global(.eyebrow) {
@@ -53,6 +55,7 @@ const rows = [
     flex-direction: column;
     gap: 0.55rem;
     margin-top: 1.15rem;
+    min-width: 0;
     mask-image: linear-gradient(
       90deg,
       transparent,
@@ -64,6 +67,8 @@ const rows = [
 
   .track {
     overflow: hidden;
+    min-width: 0;
+    width: 100%;
   }
 
   /* 内容复制两份，动画位移 50% 时无缝接上 */
@@ -126,6 +131,12 @@ const rows = [
     .marquee {
       mask-image: none;
       padding-inline: 1.15rem;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .langs {
+      display: none;
     }
   }
 </style>

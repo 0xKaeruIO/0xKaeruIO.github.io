@@ -171,9 +171,18 @@ const filters = [
   }
 
   @media (max-width: 720px) {
+    .filters {
+      margin-top: 0.95rem;
+    }
+
+    .archive {
+      padding-top: 1.35rem;
+    }
+
     .year {
       grid-template-columns: 1fr;
-      gap: 1rem;
+      gap: 0.55rem;
+      padding-bottom: 1.5rem;
     }
 
     .year__label {
@@ -181,7 +190,14 @@ const filters = [
     }
 
     .year__label span {
-      padding-top: 0.6rem;
+      padding-top: 0;
+      border-top: none;
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+    }
+
+    .year__list {
+      gap: 0.55rem;
     }
   }
 </style>

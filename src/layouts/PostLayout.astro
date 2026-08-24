@@ -262,13 +262,44 @@ const editUrl = `https://github.com/${SITE.githubUser}/${SITE.repo}/edit/main/sr
     }
   }
 
-  @media (max-width: 620px) {
+  @media (max-width: 720px) {
+    .article {
+      padding-top: 1.25rem;
+    }
+
+    .head {
+      padding-bottom: 1.05rem;
+      margin-bottom: 1.35rem;
+    }
+
+    .head__title {
+      font-size: var(--step-2);
+    }
+
+    .head__desc {
+      font-size: var(--step-0);
+    }
+
     .adjacent {
       grid-template-columns: 1fr;
+      gap: 0.55rem;
     }
 
     .adjacent__link--next {
       text-align: left;
+    }
+
+    .foot {
+      margin-top: 2rem;
+    }
+
+    .related {
+      margin-top: 2.25rem;
+    }
+
+    .related__list {
+      gap: 0.55rem;
+      margin-top: 0.8rem;
     }
   }
 </style>

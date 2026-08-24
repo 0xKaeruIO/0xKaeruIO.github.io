@@ -107,15 +107,36 @@ const recent = posts.slice(0, 4);
   .gh {
     display: grid;
     gap: 0.9rem;
+    min-width: 0;
   }
 
-  @media (max-width: 800px) {
+  @media (max-width: 720px) {
+    .hero {
+      border-bottom: none;
+      background: none;
+    }
+
+    .hero__grid {
+      padding-block: 0.9rem 0.15rem;
+    }
+
     .hero__blob {
-      top: auto;
-      bottom: -30%;
-      right: -30%;
-      width: 20rem;
-      height: 20rem;
+      display: none;
+    }
+
+    .block {
+      padding-top: 1.7rem;
+    }
+
+    .block__head {
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .posts,
+    .gh {
+      gap: 0.65rem;
     }
   }
 </style>
