@@ -8,8 +8,8 @@
     "node": ">=20"
   },
   "scripts": {
-    "dev": "astro dev",
-    "start": "astro dev",
+    "dev": "astro dev --host 127.0.0.1",
+    "start": "astro dev --host 127.0.0.1",
     "sync": "node scripts/fetch-github.mjs",
     "prebuild": "node scripts/fetch-github.mjs",
     "build": "astro build",
