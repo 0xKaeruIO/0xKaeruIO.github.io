@@ -82,6 +82,10 @@ const colorOf = (lang: string | null) =>
 </section>
 
 <style>
+  .repos {
+    min-width: 0;
+  }
+
   .grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(15.5rem, 1fr));
@@ -182,5 +186,32 @@ const colorOf = (lang: string | null) =>
     width: 0.5rem;
     height: 0.5rem;
     border-radius: 100px;
+  }
+
+  @media (max-width: 720px) {
+    .grid {
+      grid-template-columns: 1fr;
+      gap: 0.55rem;
+      margin-top: 0.75rem;
+    }
+
+    .repo {
+      gap: 0.35rem;
+      padding: 0.85rem 1.05rem;
+    }
+
+    .repo__desc {
+      font-size: 0.8rem;
+      line-height: 1.55;
+    }
+
+    .repo__topics {
+      display: none;
+    }
+
+    .repo__foot {
+      padding-top: 0.45rem;
+      gap: 0.65rem;
+    }
   }
 </style>

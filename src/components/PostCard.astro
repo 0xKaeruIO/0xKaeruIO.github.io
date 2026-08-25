@@ -16,7 +16,7 @@ const href = withBase(`/posts/${post.id}`);
 const minutes = readingTime(post.body);
 ---
 
-<article class:list={['post card card--lift', featured && 'post--featured']}>
+<article class:list={['post card card--lift']}>
   <a class="post__link" href={href} aria-labelledby={`t-${post.id}`}>
     <div class="post__side">
       <time class="post__date" datetime={pubDate.toISOString()}>{formatDate(pubDate)}</time>
@@ -79,10 +79,6 @@ const minutes = readingTime(post.body);
     transition: color var(--transition);
   }
 
-  .post--featured .post__title {
-    font-size: var(--step-2);
-  }
-
   .post:hover .post__title {
     color: var(--vermilion);
   }
@@ -99,12 +95,6 @@ const minutes = readingTime(post.body);
     overflow: hidden;
   }
 
-  .post--featured .post__desc {
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
-    font-size: 0.95rem;
-  }
-
   .post__foot {
     display: flex;
     align-items: center;
@@ -119,21 +109,35 @@ const minutes = readingTime(post.body);
     white-space: nowrap;
   }
 
-  @media (max-width: 560px) {
+  @media (max-width: 720px) {
     .post__link {
-      grid-template-columns: 1fr;
-      gap: 0.7rem;
-      padding: 1.1rem 1.15rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.28rem;
+      padding: 0.9rem 1.05rem;
     }
 
     .post__side {
       flex-direction: row;
-      align-items: center;
-      gap: 0.7rem;
-      padding-right: 0;
-      padding-bottom: 0.6rem;
-      border-right: none;
-      border-bottom: 1px dashed var(--border);
+      align-items: baseline;
+      gap: 0.55rem;
+      padding: 0;
+      border: none;
+    }
+
+    .post__title {
+      font-size: 1.02rem;
+      line-height: 1.4;
+    }
+
+    .post__desc {
+      margin-top: 0.2rem;
+      font-size: 0.84rem;
+      line-height: 1.6;
+    }
+
+    .post__foot {
+      margin-top: 0.5rem;
     }
   }
 </style>

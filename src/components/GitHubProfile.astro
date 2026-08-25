@@ -170,24 +170,64 @@ const stats = [
     font-variant-numeric: tabular-nums;
   }
 
-  @media (max-width: 480px) {
+  @media (max-width: 720px) {
     .profile {
-      grid-template-columns: 1fr;
+      grid-template-columns: auto 1fr;
       grid-template-areas:
-        'portrait'
-        'identity'
-        'stats';
-      gap: 1rem;
+        'portrait identity'
+        'stats stats';
+      gap: 0.7rem 0.9rem;
+      padding: 1rem 1.05rem;
+    }
+
+    .portrait {
+      width: 3.55rem;
+      height: 3.55rem;
+    }
+
+    .portrait img {
+      box-shadow: 3px 3px 0 0 color-mix(in srgb, var(--ink) 82%, transparent);
+    }
+
+    .portrait__dots {
+      right: -0.4rem;
+      top: -0.35rem;
+      width: 1.55rem;
+      height: 1.55rem;
+    }
+
+    .name {
+      font-size: var(--step-1);
+    }
+
+    .bio {
+      margin-top: 0.3rem;
+      font-size: 0.74rem;
+      line-height: 1.5;
+      padding-left: 0.5rem;
+    }
+
+    .since {
+      margin-top: 0.25rem;
     }
 
     .stats {
       grid-template-columns: repeat(2, 1fr);
-      gap: 0.9rem 0;
+      gap: 0.55rem 0;
+      padding-top: 0.7rem;
+    }
+
+    .stat {
+      padding-inline: 0.45rem;
     }
 
     .stat:nth-child(3) {
       padding-left: 0;
       border-left: none;
+    }
+
+    .stat dd {
+      font-size: 1.05rem;
     }
   }
 </style>

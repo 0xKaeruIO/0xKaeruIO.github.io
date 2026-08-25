@@ -20,6 +20,9 @@ export default defineConfig({
       wrap: false,
     },
   },
+  server:{
+    allowedHosts: ['localhost', '127.0.0.1'],
+  },
   build: {
     inlineStylesheets: 'auto',
   },
